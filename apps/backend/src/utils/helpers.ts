@@ -9,8 +9,7 @@ export function getParam(param: unknown): string {
 }
 
 // Helper to format currency values
-// FIXME: 'amount' has implicit 'any' type - should be 'number'
-export function formatCurrency(amount: any, currency = 'USD') {
+export function formatCurrency(amount: number, currency = 'USD') {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency,
@@ -19,27 +18,22 @@ export function formatCurrency(amount: any, currency = 'USD') {
 }
 
 // Helper to calculate percentage change
-// BUG: Unused variable 'unusedVariable' should be removed
-// FIXME: Parameters have implicit 'any' types
-export function calculatePercentChange(oldValue: any, newValue: any) {
-  const unusedVariable = 'this should trigger a lint error';
+export function calculatePercentChange(oldValue: number, newValue: number) {
   if (oldValue === 0) return newValue > 0 ? 100 : 0;
   return ((newValue - oldValue) / oldValue) * 100;
 }
 
 // Parse pagination params from query
-// FIXME: 'query' has implicit 'any' type - should be typed
-export function parsePagination(query: any) {
-  const page = parseInt(query.page) || 1;
-  const limit = parseInt(query.limit) || 10;
+export function parsePagination(query: { page?: string; limit?: string }) {
+  const page = parseInt(query.page || '1') || 1;
+  const limit = parseInt(query.limit || '10') || 10;
   const skip = (page - 1) * limit;
 
   return { page, limit, skip };
 }
 
 // Validate email format
-// FIXME: 'email' should be typed as 'string' not 'any'
-export function isValidEmail(email: any): boolean {
+export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
