@@ -1,5 +1,3 @@
-'use client';
-
 interface AdSlotCardProps {
   adSlot: {
     id: string;
@@ -9,16 +7,18 @@ interface AdSlotCardProps {
     basePrice: number;
     isAvailable: boolean;
   };
+  onEdit: () => void;
 }
 
 const typeColors: Record<string, string> = {
   DISPLAY: 'bg-blue-100 text-blue-700',
   VIDEO: 'bg-red-100 text-red-700',
+  NATIVE: 'bg-green-100 text-green-700',
   NEWSLETTER: 'bg-purple-100 text-purple-700',
   PODCAST: 'bg-orange-100 text-orange-700',
 };
 
-export function AdSlotCard({ adSlot }: AdSlotCardProps) {
+export function AdSlotCard({ adSlot, onEdit }: AdSlotCardProps) {
   return (
     <div className="rounded-lg border border-[--color-border] p-4">
       <div className="mb-2 flex items-start justify-between">
@@ -43,7 +43,14 @@ export function AdSlotCard({ adSlot }: AdSlotCardProps) {
         </span>
       </div>
 
-      {/* TODO: Add edit/toggle availability buttons */}
+      <div className="mt-3 flex justify-end">
+        <button
+          onClick={onEdit}
+          className="text-sm text-[--color-primary] hover:underline"
+        >
+          Edit
+        </button>
+      </div>
     </div>
   );
 }

@@ -9,6 +9,7 @@ interface CampaignCardProps {
     startDate: string;
     endDate: string;
   };
+  onEdit: () => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -18,7 +19,7 @@ const statusColors: Record<string, string> = {
   COMPLETED: 'bg-blue-100 text-blue-700',
 };
 
-export function CampaignCard({ campaign }: CampaignCardProps) {
+export function CampaignCard({ campaign, onEdit }: CampaignCardProps) {
   const progress =
     campaign.budget > 0 ? (Number(campaign.spent) / Number(campaign.budget)) * 100 : 0;
 
@@ -52,12 +53,18 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
         </div>
       </div>
 
-      <div className="text-xs text-[--color-muted]">
-        {new Date(campaign.startDate).toLocaleDateString()} -{' '}
-        {new Date(campaign.endDate).toLocaleDateString()}
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-[--color-muted]">
+          {new Date(campaign.startDate).toLocaleDateString()} -{' '}
+          {new Date(campaign.endDate).toLocaleDateString()}
+        </span>
+        <button
+          onClick={onEdit}
+          className="text-sm text-[--color-primary] hover:underline"
+        >
+          Edit
+        </button>
       </div>
-
-      {/* TODO: Add edit/view buttons */}
     </div>
   );
 }
