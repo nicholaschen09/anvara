@@ -39,9 +39,11 @@ export function isValidEmail(email: string): boolean {
 }
 
 // Helper to build filter object from query params
-// FIXME: Multiple 'any' types that should be properly typed
-export const buildFilters = (query: any, allowedFields: string[]) => {
-  const filters: any = {};
+export const buildFilters = (
+  query: Record<string, unknown>,
+  allowedFields: string[]
+): Record<string, unknown> => {
+  const filters: Record<string, unknown> = {};
 
   for (const field of allowedFields) {
     if (query[field] !== undefined) {
@@ -67,9 +69,7 @@ export function clampValue(value: number, min: number, max: number): number {
   return value;
 }
 
-// TODO: Add proper date formatting helper
-// This is a stub that candidates might notice and implement
-export function formatDate(date: any): string {
-  // BUG: Doesn't handle invalid dates
+// Date formatting helper
+export function formatDate(date: Date | string | number): string {
   return new Date(date).toLocaleDateString();
 }
