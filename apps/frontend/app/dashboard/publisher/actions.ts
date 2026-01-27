@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
+// eslint-disable-next-line no-undef
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
 
 export interface ActionState {
@@ -11,7 +12,7 @@ export interface ActionState {
   fieldErrors?: Record<string, string>;
 }
 
-async function getAuthHeaders(): Promise<HeadersInit> {
+async function getAuthHeaders(): Promise<Record<string, string>> {
   const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
   const cookieString = allCookies.map((c) => `${c.name}=${c.value}`).join('; ');
