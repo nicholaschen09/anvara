@@ -6,22 +6,24 @@ import { authClient } from '@/auth-client';
 
 type UserRole = 'sponsor' | 'publisher' | null;
 
+// eslint-disable-next-line no-undef
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
+
 export function Nav() {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const [role, setRole] = useState<UserRole>(null);
 
-  // TODO: Convert to server component and fetch role server-side
   // Fetch user role from backend when user is logged in
   useEffect(() => {
     if (user?.id) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291'}/api/auth/role/${user.id}`
-      )
+      fetch(`${API_URL}/api/auth/role/${user.id}`)
         .then((res) => res.json())
-        .then((data) => setRole(data.role))
+        .then((data: { role: UserRole }) => setRole(data.role))
         .catch(() => setRole(null));
     } else {
+      // Reset role when user logs out
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRole(null);
     }
   }, [user?.id]);

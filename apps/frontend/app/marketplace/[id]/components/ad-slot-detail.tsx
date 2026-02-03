@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { getAdSlot } from '@/lib/api';
 import { authClient } from '@/auth-client';
 
+// eslint-disable-next-line no-undef
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
+
 interface AdSlot {
   id: string;
   name: string;
@@ -72,7 +75,7 @@ export function AdSlotDetail({ id }: Props) {
 
           // Fetch role info from backend
           fetch(
-            `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291'}/api/auth/role/${sessionUser.id}`
+            `${API_URL}/api/auth/role/${sessionUser.id}`
           )
             .then((res) => res.json())
             .then((data) => setRoleInfo(data))
@@ -93,7 +96,7 @@ export function AdSlotDetail({ id }: Props) {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291'}/api/ad-slots/${adSlot.id}/book`,
+        `${API_URL}/api/ad-slots/${adSlot.id}/book`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -123,7 +126,7 @@ export function AdSlotDetail({ id }: Props) {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291'}/api/ad-slots/${adSlot.id}/unbook`,
+        `${API_URL}/api/ad-slots/${adSlot.id}/unbook`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -137,8 +140,8 @@ export function AdSlotDetail({ id }: Props) {
       setBookingSuccess(false);
       setAdSlot({ ...adSlot, isAvailable: true });
       setMessage('');
-    } catch (err) {
-      console.error('Failed to unbook:', err);
+    } catch {
+      // Silently fail - user can retry
     }
   };
 

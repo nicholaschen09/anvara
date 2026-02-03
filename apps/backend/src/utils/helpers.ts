@@ -54,19 +54,9 @@ export const buildFilters = (
   return filters;
 };
 
-// Unused export that should be removed or marked deprecated
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const DEPRECATED_CONFIG = {
-  apiVersion: 'v1',
-  timeout: 5000,
-};
-
-// BUG: This function has a logic error - it doesn't handle negative numbers correctly
+// Clamp a value between min and max
 export function clampValue(value: number, min: number, max: number): number {
-  // Should use Math.max(min, Math.min(max, value)) but this is wrong
-  if (value < min) return min;
-  if (value > max) return max;
-  return value;
+  return Math.max(min, Math.min(max, value));
 }
 
 // Date formatting helper
