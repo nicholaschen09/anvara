@@ -1,8 +1,14 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAdSlots, type AdSlot } from '@/lib/api';
+
+interface AdSlot {
+  id: string;
+  name: string;
+  description?: string;
+  type: string;
+  basePrice: number;
+  isAvailable: boolean;
+  publisher?: { id: string; name: string; category?: string; monthlyViews?: number };
+}
 
 const typeColors: Record<string, string> = {
   DISPLAY: 'bg-blue-100 text-blue-700',
@@ -11,26 +17,11 @@ const typeColors: Record<string, string> = {
   PODCAST: 'bg-orange-100 text-orange-700',
 };
 
-export function AdSlotGrid() {
-  const [adSlots, setAdSlots] = useState<AdSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface AdSlotGridProps {
+  adSlots: AdSlot[];
+}
 
-  useEffect(() => {
-    getAdSlots()
-      .then(setAdSlots)
-      .catch(() => setError('Failed to load ad slots'))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return <div className="py-12 text-center text-[--color-muted]">Loading marketplace...</div>;
-  }
-
-  if (error) {
-    return <div className="rounded border border-red-200 bg-red-50 p-4 text-red-600">{error}</div>;
-  }
-
+export function AdSlotGrid({ adSlots }: AdSlotGridProps) {
   if (adSlots.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-[--color-border] p-12 text-center text-[--color-muted]">
