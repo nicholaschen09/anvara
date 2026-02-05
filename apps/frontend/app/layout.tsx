@@ -38,6 +38,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col antialiased">
+        <GoogleAnalytics />
         <Nav />
         <main className="mx-auto w-full max-w-6xl flex-1 p-4">{children}</main>
         <Footer />
