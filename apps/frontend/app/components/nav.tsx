@@ -16,39 +16,48 @@ export function Nav() {
   const [role, setRole] = useState<UserRole>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const prevPathnameRef = useRef(pathname);
+  const prevUserIdRef = useRef(user?.id);
 
   // Fetch user role from backend when user is logged in
   useEffect(() => {
-    if (user?.id) {
-      fetch(`${API_URL}/api/auth/role/${user.id}`)
-        .then((res) => res.json())
-        .then((data: { role: UserRole }) => setRole(data.role))
-        .catch(() => setRole(null));
-    }
-    // Reset role when user logs out - using a cleanup pattern
-    return () => {
-      if (!user?.id) {
-        setRole(null);
+    let isMounted = true;
+
+    const fetchRole = async () => {
+      if (user?.id) {
+        try {
+          const res = await fetch(`${API_URL}/api/auth/role/${user.id}`);
+          const data = await res.json();
+          if (isMounted) {
+            setRole(data.role);
+          }
+        } catch {
+          if (isMounted) {
+            setRole(null);
+          }
+        }
       }
+    };
+
+    // Reset role when user logs out
+    if (prevUserIdRef.current && !user?.id) {
+      setRole(null);
+    }
+    prevUserIdRef.current = user?.id;
+
+    fetchRole();
+
+    return () => {
+      isMounted = false;
     };
   }, [user?.id]);
 
-  // Reset role when user becomes null
-  const prevUserId = React.useRef(user?.id);
+  // Close mobile menu on route change
   useEffect(() => {
-    if (prevUserId.current && !user?.id) {
-      setRole(null);
-    }
-    prevUserId.current = user?.id;
-  }, [user?.id]);
-
-  // Close mobile menu on route change - using ref to track previous pathname
-  const prevPathname = React.useRef(pathname);
-  useEffect(() => {
-    if (prevPathname.current !== pathname) {
+    if (prevPathnameRef.current !== pathname) {
       setMobileMenuOpen(false);
-      prevPathname.current = pathname;
     }
+    prevPathnameRef.current = pathname;
   }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
