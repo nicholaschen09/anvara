@@ -41,6 +41,7 @@ export function Nav() {
 
     // Reset role when user logs out
     if (prevUserIdRef.current && !user?.id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRole(null);
     }
     prevUserIdRef.current = user?.id;
@@ -55,6 +56,7 @@ export function Nav() {
   // Close mobile menu on route change
   useEffect(() => {
     if (prevPathnameRef.current !== pathname) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMobileMenuOpen(false);
     }
     prevPathnameRef.current = pathname;

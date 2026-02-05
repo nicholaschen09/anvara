@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { getUserRole } from '@/lib/auth-helpers';
 import { CampaignList } from './components/campaign-list';
+import { StatsCards } from './components/stats-cards';
 
 // eslint-disable-next-line no-undef
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
@@ -54,8 +55,9 @@ export default async function SponsorDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Campaigns</h1>
-        {/* TODO: Add CreateCampaignButton here */}
       </div>
+
+      <StatsCards campaigns={campaigns} />
 
       <CampaignList campaigns={campaigns} />
     </div>

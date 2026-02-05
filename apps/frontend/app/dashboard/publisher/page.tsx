@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { getUserRole } from '@/lib/auth-helpers';
 import { AdSlotList } from './components/ad-slot-list';
+import { StatsCards } from './components/stats-cards';
 
 // eslint-disable-next-line no-undef
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
@@ -18,13 +19,15 @@ interface AdSlot {
 
 async function getAdSlotsForPublisher(publisherId: string): Promise<AdSlot[]> {
   try {
-    const res = await fetch(`${API_URL}/api/ad-slots?publisherId=${publisherId}`, {
+    const res = await fetch(`${API_URL}/api/ad-slots?publisherId=${publisherId}&limit=100`, {
       cache: 'no-store',
     });
     if (!res.ok) {
       return [];
     }
-    return res.json();
+    const response = await res.json();
+    // Handle paginated response
+    return response.data || response;
   } catch {
     return [];
   }
@@ -53,6 +56,8 @@ export default async function PublisherDashboard() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Ad Slots</h1>
       </div>
+
+      <StatsCards adSlots={adSlots} />
 
       <AdSlotList adSlots={adSlots} />
     </div>
