@@ -24,8 +24,20 @@ interface AdSlotGridProps {
 export function AdSlotGrid({ adSlots }: AdSlotGridProps) {
   if (adSlots.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[--color-border] p-12 text-center text-[--color-muted]">
-        No ad slots available at the moment.
+      <div className="rounded-lg border border-dashed border-[--color-border] p-12 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-3xl">
+          📭
+        </div>
+        <h3 className="mb-2 text-lg font-semibold">No ad slots found</h3>
+        <p className="mb-4 text-[--color-muted]">
+          Try adjusting your filters or check back later for new listings.
+        </p>
+        <a
+          href="/marketplace"
+          className="inline-block rounded-lg bg-[--color-primary] px-4 py-2 text-sm text-white hover:opacity-90"
+        >
+          Clear Filters
+        </a>
       </div>
     );
   }

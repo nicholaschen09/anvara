@@ -8,24 +8,48 @@ const router: IRouter = Router();
 // GET /api/ad-slots - List available ad slots (public for marketplace browsing)
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const { publisherId, type, available } = req.query;
+    const { publisherId, type, available, page, limit } = req.query;
 
-    const adSlots = await prisma.adSlot.findMany({
-      where: {
-        ...(publisherId && { publisherId: getParam(publisherId) }),
-        ...(type && {
-          type: type as 'DISPLAY' | 'VIDEO' | 'NATIVE' | 'NEWSLETTER' | 'PODCAST',
-        }),
-        ...(available === 'true' && { isAvailable: true }),
+    // Pagination
+    const pageNum = parseInt(getParam(page) || '1', 10) || 1;
+    const limitNum = Math.min(parseInt(getParam(limit) || '12', 10) || 12, 50);
+    const skip = (pageNum - 1) * limitNum;
+
+    const where = {
+      ...(publisherId && { publisherId: getParam(publisherId) }),
+      ...(type && {
+        type: type as 'DISPLAY' | 'VIDEO' | 'NATIVE' | 'NEWSLETTER' | 'PODCAST',
+      }),
+      ...(available === 'true' && { isAvailable: true }),
+    };
+
+    // Get total count and items in parallel
+    const [total, adSlots] = await Promise.all([
+      prisma.adSlot.count({ where }),
+      prisma.adSlot.findMany({
+        where,
+        include: {
+          publisher: { select: { id: true, name: true, category: true, monthlyViews: true } },
+          _count: { select: { placements: true } },
+        },
+        orderBy: { basePrice: 'desc' },
+        skip,
+        take: limitNum,
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limitNum);
+
+    res.json({
+      data: adSlots,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages,
+        hasMore: pageNum < totalPages,
       },
-      include: {
-        publisher: { select: { id: true, name: true, category: true, monthlyViews: true } },
-        _count: { select: { placements: true } },
-      },
-      orderBy: { basePrice: 'desc' },
     });
-
-    res.json(adSlots);
   } catch (error) {
     console.error('Error fetching ad slots:', error);
     res.status(500).json({ error: 'Failed to fetch ad slots' });

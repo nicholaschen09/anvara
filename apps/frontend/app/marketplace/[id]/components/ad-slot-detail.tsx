@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { getAdSlot } from '@/lib/api';
 import { authClient } from '@/auth-client';
+import { QuoteRequestForm } from './quote-request-form';
 
 // eslint-disable-next-line no-undef
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
@@ -57,6 +58,7 @@ export function AdSlotDetail({ id }: Props) {
   const [booking, setBooking] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
 
   useEffect(() => {
     // Fetch ad slot
@@ -294,7 +296,36 @@ export function AdSlotDetail({ id }: Props) {
             </button>
           </div>
         )}
+
+        {/* Request Quote Section - available for everyone */}
+        {!bookingSuccess && (
+          <div className="mt-6 border-t border-[--color-border] pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">Need a custom quote?</h3>
+                <p className="text-sm text-[--color-muted]">
+                  Get personalized pricing or discuss custom requirements
+                </p>
+              </div>
+              <button
+                onClick={() => setShowQuoteForm(true)}
+                className="rounded-lg border border-[--color-primary] px-4 py-2 text-[--color-primary] transition-colors hover:bg-blue-50"
+              >
+                Request Quote
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Quote Request Modal */}
+      {showQuoteForm && adSlot && (
+        <QuoteRequestForm
+          adSlotId={adSlot.id}
+          adSlotName={adSlot.name}
+          onClose={() => setShowQuoteForm(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { authClient } from '@/auth-client';
 
@@ -13,6 +14,8 @@ export function Nav() {
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const [role, setRole] = useState<UserRole>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   // Fetch user role from backend when user is logged in
   useEffect(() => {
@@ -22,43 +25,44 @@ export function Nav() {
         .then((data: { role: UserRole }) => setRole(data.role))
         .catch(() => setRole(null));
     } else {
-      // Reset role when user logs out
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRole(null);
     }
   }, [user?.id]);
 
-  // TODO: Add active link styling using usePathname() from next/navigation
-  // The current page's link should be highlighted differently
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  const isActive = (path: string) => pathname === path;
+
+  const linkClass = (path: string) =>
+    `transition-colors ${
+      isActive(path)
+        ? 'text-[--color-primary] font-medium'
+        : 'text-[--color-muted] hover:text-[--color-foreground]'
+    }`;
 
   return (
-    <header className="border-b border-[--color-border]">
+    <header className="sticky top-0 z-40 border-b border-[--color-border] bg-[--color-background]">
       <nav className="mx-auto flex max-w-6xl items-center justify-between p-4">
         <Link href="/" className="text-xl font-bold text-[--color-primary]">
           Anvara
         </Link>
 
-        <div className="flex items-center gap-6">
-          <Link
-            href="/marketplace"
-            className="text-[--color-muted] hover:text-[--color-foreground]"
-          >
+        {/* Desktop Navigation */}
+        <div className="hidden items-center gap-6 md:flex">
+          <Link href="/marketplace" className={linkClass('/marketplace')}>
             Marketplace
           </Link>
 
           {user && role === 'sponsor' && (
-            <Link
-              href="/dashboard/sponsor"
-              className="text-[--color-muted] hover:text-[--color-foreground]"
-            >
+            <Link href="/dashboard/sponsor" className={linkClass('/dashboard/sponsor')}>
               My Campaigns
             </Link>
           )}
           {user && role === 'publisher' && (
-            <Link
-              href="/dashboard/publisher"
-              className="text-[--color-muted] hover:text-[--color-foreground]"
-            >
+            <Link href="/dashboard/publisher" className={linkClass('/dashboard/publisher')}>
               My Ad Slots
             </Link>
           )}
@@ -94,7 +98,79 @@ export function Nav() {
             </Link>
           )}
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-[--color-border] md:hidden"
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
       </nav>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="border-t border-[--color-border] bg-[--color-background] px-4 py-4 md:hidden">
+          <div className="flex flex-col gap-4">
+            <Link href="/marketplace" className={`py-2 ${linkClass('/marketplace')}`}>
+              Marketplace
+            </Link>
+
+            {user && role === 'sponsor' && (
+              <Link href="/dashboard/sponsor" className={`py-2 ${linkClass('/dashboard/sponsor')}`}>
+                My Campaigns
+              </Link>
+            )}
+            {user && role === 'publisher' && (
+              <Link href="/dashboard/publisher" className={`py-2 ${linkClass('/dashboard/publisher')}`}>
+                My Ad Slots
+              </Link>
+            )}
+
+            <hr className="border-[--color-border]" />
+
+            {isPending ? (
+              <span className="py-2 text-[--color-muted]">Loading...</span>
+            ) : user ? (
+              <>
+                <span className="py-2 text-sm text-[--color-muted]">
+                  Signed in as {user.name} {role && `(${role})`}
+                </span>
+                <button
+                  onClick={async () => {
+                    await authClient.signOut({
+                      fetchOptions: {
+                        onSuccess: () => {
+                          window.location.href = '/';
+                        },
+                      },
+                    });
+                  }}
+                  className="w-full rounded bg-gray-600 py-3 text-center text-sm text-white hover:bg-gray-500"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="w-full rounded bg-[--color-primary] py-3 text-center text-sm text-white hover:bg-[--color-primary-hover]"
+              >
+                Login
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
