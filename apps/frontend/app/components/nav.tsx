@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { authClient } from '@/auth-client';
 
 type UserRole = 'sponsor' | 'publisher' | null;
@@ -24,14 +24,31 @@ export function Nav() {
         .then((res) => res.json())
         .then((data: { role: UserRole }) => setRole(data.role))
         .catch(() => setRole(null));
-    } else {
-      setRole(null);
     }
+    // Reset role when user logs out - using a cleanup pattern
+    return () => {
+      if (!user?.id) {
+        setRole(null);
+      }
+    };
   }, [user?.id]);
 
-  // Close mobile menu on route change
+  // Reset role when user becomes null
+  const prevUserId = React.useRef(user?.id);
   useEffect(() => {
-    setMobileMenuOpen(false);
+    if (prevUserId.current && !user?.id) {
+      setRole(null);
+    }
+    prevUserId.current = user?.id;
+  }, [user?.id]);
+
+  // Close mobile menu on route change - using ref to track previous pathname
+  const prevPathname = React.useRef(pathname);
+  useEffect(() => {
+    if (prevPathname.current !== pathname) {
+      setMobileMenuOpen(false);
+      prevPathname.current = pathname;
+    }
   }, [pathname]);
 
   const isActive = (path: string) => pathname === path;
